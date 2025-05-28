@@ -7,7 +7,7 @@ const vapidKeys = {
 };
 
 webPush.setVapidDetails(
-    'mailto:testireba5@gmail.com', // Replace with your contact email
+    'mailto:vasokima@gmail.com', // Replace with your contact email
     vapidKeys.publicKey,
     vapidKeys.privateKey
 );
