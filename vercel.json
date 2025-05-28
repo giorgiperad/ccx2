@@ -1,11 +1,5 @@
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "staticFiles": [
-    {
-      "source": "/sw.js",
-      "destination": "/public/sw.js"
-    }
   ]
 }
