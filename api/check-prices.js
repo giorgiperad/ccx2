@@ -7,7 +7,7 @@ const vapidKeys = {
 };
 
 webPush.setVapidDetails(
-    'mailto:your-contact@example.com', // Replace with your contact email
+    'mailto:vasokima@gmail.com', // Replace with your contact email
     vapidKeys.publicKey,
     vapidKeys.privateKey
 );
@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
         const coins = response.data;
 
         for (const coin of coins) {
-            if (coin.price_change_percentage_24h > 20) {
+            if (coin.price_change_percentage_24h > 2) {
                 const payload = JSON.stringify({
                     title: `ფასის გაფრთხილება: ${coin.name}`,
                     body: `${coin.name}-მა 24 საათში ${coin.price_change_percentage_24h.toFixed(2)}%-ით მოიმატა!`
