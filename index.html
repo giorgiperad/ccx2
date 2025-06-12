@@ -715,4 +715,169 @@
                             <div class="coin-logo">
                                 <img src="https://assets.coingecko.com/coins/images/${coin.id.replace(/[^a-z0-9-]/g, '')}/small/${coin.id}.png" 
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" alt="${coin.name}">
-                                <div style="display:none; width:100%; height:100%; align-items:center; justify-content:center; background:linear-gradient(135deg, #3b
+                                <div style="display:none; width:100%; height:100%; align-items:center; justify-content:center; background:linear-gradient(135deg, #3b82f6, #06b6d4); color:white; font-weight:bold; font-size:0.8rem;">
+                                    ${coin.symbol.substring(0, 2).toUpperCase()}
+                                </div>
+                            </div>
+                            <div class="coin-details">
+                                <h4>${coin.name}</h4>
+                                <span>${coin.symbol.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="price">${formatNumber(coin.current_price)}</td>
+                    <td class="change-cell ${change24h >= 0 ? 'positive' : 'negative'}">
+                        ${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}%
+                    </td>
+                    <td class="change-cell ${change7d >= 0 ? 'positive' : 'negative'}">
+                        ${change7d >= 0 ? '+' : ''}${change7d.toFixed(2)}%
+                    </td>
+                    <td class="market-cap">${formatLargeNumber(coin.market_cap)}</td>
+                    <td class="volume">${formatLargeNumber(coin.total_volume)}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            loading.style.display = 'none';
+            table.style.display = 'table';
+        }
+        
+        function updateStats() {
+            const totalTokens = cryptoData.length;
+            const gainers = cryptoData.filter(coin => (coin.price_change_percentage_24h || 0) > 0).length;
+            const losers = cryptoData.filter(coin => (coin.price_change_percentage_24h || 0) < 0).length;
+            const totalMarketCap = cryptoData.reduce((sum, coin) => sum + (coin.market_cap || 0), 0);
+            
+            // Calculate portfolio PNL (assuming equal weight)
+            const avgChange = cryptoData.reduce((sum, coin) => sum + (coin.price_change_percentage_24h || 0), 0) / cryptoData.length;
+            const portfolioValue = totalMarketCap / cryptoData.length; // Simplified calculation
+            
+            document.getElementById('totalTokens').textContent = totalTokens;
+            document.getElementById('dailyGainers').textContent = gainers;
+            document.getElementById('dailyLosers').textContent = losers;
+            document.getElementById('totalMarketCap').textContent = ' + formatLargeNumber(totalMarketCap);
+            
+            // Portfolio PNL
+            document.getElementById('portfolioPnL').textContent = (avgChange >= 0 ? '+' : '') + avgChange.toFixed(2) + '%';
+            document.getElementById('portfolioPnL').className = 'value ' + (avgChange >= 0 ? 'positive' : 'negative');
+            document.getElementById('portfolioChange').textContent = ' + formatLargeNumber(portfolioValue * (avgChange / 100));
+            document.getElementById('portfolioChange').className = 'change ' + (avgChange >= 0 ? 'positive' : 'negative');
+        }
+        
+        function formatNumber(num) {
+            if (num < 0.01) return num.toFixed(6);
+            if (num < 1) return num.toFixed(4);
+            if (num < 100) return num.toFixed(2);
+            return num.toLocaleString();
+        }
+        
+        function formatLargeNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toLocaleString();
+        }
+        
+        async function loadAllData() {
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('cryptoTable');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            
+            await Promise.all([
+                loadCryptoData(),
+                loadGlobalData()
+            ]);
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredData = cryptoData.filter(coin => 
+                coin.name.toLowerCase().includes(searchTerm) || 
+                coin.symbol.toLowerCase().includes(searchTerm)
+            );
+            displayCryptoData(filteredData);
+        });
+        
+        // Sorting functionality
+        document.querySelectorAll('.sortable').forEach(header => {
+            header.addEventListener('click', function() {
+                const sortBy = this.dataset.sort;
+                
+                // Reset other headers
+                document.querySelectorAll('.sortable').forEach(h => {
+                    if (h !== this) h.className = 'sortable';
+                });
+                
+                // Toggle sort direction
+                if (sortOrder.column === sortBy) {
+                    sortOrder.direction = sortOrder.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortOrder.column = sortBy;
+                    sortOrder.direction = 'asc';
+                }
+                
+                // Update header class
+                this.className = `sortable sort-${sortOrder.direction}`;
+                
+                // Sort data
+                const sortedData = [...cryptoData].sort((a, b) => {
+                    let aVal, bVal;
+                    
+                    switch(sortBy) {
+                        case 'rank':
+                            aVal = a.market_cap_rank || 999999;
+                            bVal = b.market_cap_rank || 999999;
+                            break;
+                        case 'name':
+                            aVal = a.name.toLowerCase();
+                            bVal = b.name.toLowerCase();
+                            break;
+                        case 'price':
+                            aVal = a.current_price || 0;
+                            bVal = b.current_price || 0;
+                            break;
+                        case 'change24h':
+                            aVal = a.price_change_percentage_24h || 0;
+                            bVal = b.price_change_percentage_24h || 0;
+                            break;
+                        case 'change7d':
+                            aVal = a.price_change_percentage_7d_in_currency || 0;
+                            bVal = b.price_change_percentage_7d_in_currency || 0;
+                            break;
+                        case 'marketCap':
+                            aVal = a.market_cap || 0;
+                            bVal = b.market_cap || 0;
+                            break;
+                        case 'volume':
+                            aVal = a.total_volume || 0;
+                            bVal = b.total_volume || 0;
+                            break;
+                        default:
+                            return 0;
+                    }
+                    
+                    if (typeof aVal === 'string') {
+                        return sortOrder.direction === 'asc' ? 
+                            aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                    }
+                    
+                    return sortOrder.direction === 'asc' ? aVal - bVal : bVal - aVal;
+                });
+                
+                displayCryptoData(sortedData);
+            });
+        });
+        
+        // Auto-refresh every 60 seconds
+        setInterval(loadAllData, 60000);
+        
+        // Initial load
+        loadAllData();
+    </script>
+</body>
+</html>
