@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ka">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Portfolio Dashboard</title>
+    <title>კრიპტო დაშბორდი - რეალურ დროში</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,76 +12,121 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --bg-gradient: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f4c75 100%);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-accent: #667eea;
+            --success-color: #00d4aa;
+            --danger-color: #ff6b6b;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
-            color: #ffffff;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(250, 112, 154, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(79, 172, 254, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .dashboard {
             padding: 2rem;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
+            position: relative;
         }
 
         .header {
             text-align: center;
             margin-bottom: 3rem;
             position: relative;
+            padding: 2rem 0;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            z-index: -1;
-        }
-
-        h1 {
-            font-size: 3.5rem;
+        .main-title {
+            font-size: 4rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
             letter-spacing: -0.02em;
+            line-height: 1.1;
         }
 
         .subtitle {
-            font-size: 1.2rem;
-            color: #a0a0a0;
-            font-weight: 300;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 2rem;
         }
 
-        .stats-grid {
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--glass-bg);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .market-overview {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
             margin-bottom: 3rem;
         }
 
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
+        .overview-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
             position: relative;
             overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .stat-card::before {
+        .overview-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -88,208 +134,379 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s;
+            transition: left 0.6s;
         }
 
-        .stat-card:hover::before {
+        .overview-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--text-accent);
+            box-shadow: 0 30px 60px rgba(102, 126, 234, 0.15);
+        }
+
+        .overview-card:hover::before {
             left: 100%;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #a0a0a0;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .controls {
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: var(--primary-gradient);
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .card-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .card-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .performance-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .performance-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-count {
+            background: var(--glass-bg);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .performance-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .performance-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .performance-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(8px);
+            border-color: var(--text-accent);
+        }
+
+        .token-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .token-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .token-details {
+            flex: 1;
+        }
+
+        .token-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .token-symbol {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .token-price {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-right: 1rem;
+        }
+
+        .change-badge {
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .change-positive {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--success-color);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+
+        .change-negative {
+            background: rgba(255, 107, 107, 0.15);
+            color: var(--danger-color);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .controls-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
             flex-wrap: wrap;
+            gap: 1.5rem;
             align-items: center;
         }
 
-        .search-box {
+        .search-container {
             flex: 1;
-            min-width: 250px;
+            min-width: 300px;
             position: relative;
         }
 
         .search-input {
             width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            color: #ffffff;
+            padding: 1.2rem 1.2rem 1.2rem 3.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: var(--text-primary);
             font-size: 1rem;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+            border-color: var(--text-accent);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .search-icon {
             position: absolute;
-            left: 1rem;
+            left: 1.2rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #a0a0a0;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
         }
 
-        .sort-select {
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            color: #ffffff;
+        .filter-select {
+            padding: 1.2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 160px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--text-accent);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .refresh-button {
+            padding: 1.2rem 2rem;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
 
-        .sort-select:focus {
-            outline: none;
-            border-color: #667eea;
+        .refresh-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
         }
 
-        .refresh-btn {
-            padding: 1rem 1.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 15px;
-            color: white;
-            font-weight: 600;
+        .refresh-button:active {
+            transform: translateY(-1px);
+        }
+
+        .table-wrapper {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-header {
+            background: rgba(102, 126, 234, 0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .table-header th {
+            padding: 1.8rem 1.5rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--glass-border);
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        .table-header th:hover {
+            background: rgba(102, 126, 234, 0.15);
         }
 
-        .table-container {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .crypto-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .crypto-table th {
-            background: rgba(99, 102, 241, 0.1);
-            padding: 1.5rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: #ffffff;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 0;
-            backdrop-filter: blur(20px);
-        }
-
-        .crypto-table td {
-            padding: 1.5rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .sort-indicator {
+            margin-left: 0.5rem;
+            opacity: 0.6;
             transition: all 0.3s ease;
         }
 
-        .crypto-table tr:hover {
+        .sort-indicator.active {
+            opacity: 1;
+            color: var(--text-accent);
+        }
+
+        .table-row {
+            transition: all 0.3s ease;
+        }
+
+        .table-row:hover {
             background: rgba(255, 255, 255, 0.05);
-            transform: scale(1.01);
         }
 
-        .coin-info {
+        .table-cell {
+            padding: 1.8rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 1rem;
+            vertical-align: middle;
+        }
+
+        .coin-cell {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.2rem;
         }
 
-        .coin-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+        .coin-rank {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
             font-size: 0.8rem;
+            font-weight: 700;
+            min-width: 35px;
+            text-align: center;
         }
 
-        .coin-name {
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-        }
-
-        .coin-symbol {
-            color: #a0a0a0;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        .price {
+        .price-cell {
             font-weight: 700;
             font-size: 1.1rem;
         }
 
-        .change {
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.9rem;
+        .market-data {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
         }
 
-        .change.positive {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-        }
-
-        .change.negative {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
-
-        .loading {
+        .loading-state {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
             flex-direction: column;
-            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            gap: 1.5rem;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid #667eea;
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--text-accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -299,20 +516,34 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error {
+        .error-state {
             text-align: center;
-            padding: 2rem;
-            color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-            border-radius: 15px;
-            margin: 1rem 0;
+            padding: 3rem 2rem;
+            color: var(--danger-color);
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 107, 107, 0.2);
         }
 
-        .last-updated {
+        .last-update {
             text-align: center;
-            color: #a0a0a0;
+            color: var(--text-secondary);
             font-size: 0.9rem;
-            margin-top: 1rem;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1200px) {
+            .performance-section {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -320,116 +551,180 @@
                 padding: 1rem;
             }
             
-            h1 {
-                font-size: 2.5rem;
+            .main-title {
+                font-size: 2.8rem;
             }
             
-            .controls {
+            .market-overview {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .controls-section {
                 flex-direction: column;
+                align-items: stretch;
             }
             
-            .search-box {
-                width: 100%;
+            .search-container {
+                min-width: unset;
             }
             
-            .crypto-table {
+            .table-wrapper {
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                min-width: 800px;
+            }
+            
+            .table-header th,
+            .table-cell {
+                padding: 1rem 0.8rem;
                 font-size: 0.9rem;
             }
-            
-            .crypto-table th,
-            .crypto-table td {
-                padding: 1rem 0.5rem;
-            }
-        }
-
-        .market-cap, .volume {
-            font-size: 0.9rem;
-            color: #a0a0a0;
-        }
-
-        .rank {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <div class="header">
-            <h1>Crypto Portfolio</h1>
-            <p class="subtitle">Real-time cryptocurrency market data</p>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="totalTokens">0</div>
-                <div class="stat-label">Total Tokens</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="totalMarketCap">$0</div>
-                <div class="stat-label">Total Market Cap</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="avgChange">0%</div>
-                <div class="stat-label">Avg 24h Change</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="topGainer">-</div>
-                <div class="stat-label">Top Gainer</div>
+            <h1 class="main-title">კრიპტო დაშბორდი</h1>
+            <p class="subtitle">რეალურ დროში ბაზრის მონაცემები და ანალიტიკა</p>
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>პირდაპირი ეთერი</span>
             </div>
         </div>
 
-        <div class="controls">
-            <div class="search-box">
+        <div class="market-overview">
+            <div class="overview-card">
+                <div class="card-icon">🪙</div>
+                <div class="card-value" id="totalCoins">0</div>
+                <div class="card-label">სულ ტოკენები</div>
+                <div class="card-change" id="coinsChange">...</div>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon">💰</div>
+                <div class="card-value" id="totalMarketCap">$0</div>
+                <div class="card-label">საერთო კაპიტალიზაცია</div>
+                <div class="card-change" id="marketCapChange">...</div>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon">📊</div>
+                <div class="card-value" id="avgChange24h">0%</div>
+                <div class="card-label">საშუალო ცვლილება 24სთ</div>
+                <div class="card-change" id="avgChangeIndicator">...</div>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon">🔄</div>
+                <div class="card-value" id="totalVolume24h">$0</div>
+                <div class="card-label">ობორტი 24სთ</div>
+                <div class="card-change" id="volumeChange">...</div>
+            </div>
+        </div>
+
+        <div class="performance-section">
+            <div class="performance-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        🚀 ყველაზე წარმატებული
+                        <span class="section-count" id="gainersCount">0</span>
+                    </div>
+                </div>
+                <div class="performance-list" id="topGainers">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>ტვირთავს...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="performance-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        📉 ყველაზე დაკარგული
+                        <span class="section-count" id="losersCount">0</span>
+                    </div>
+                </div>
+                <div class="performance-list" id="topLosers">
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>ტვირთავს...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <div class="search-container">
                 <div class="search-icon">🔍</div>
-                <input type="text" class="search-input" id="searchInput" placeholder="Search cryptocurrencies...">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="მოძებნეთ კრიპტოვალუტა..."
+                >
             </div>
-            <select class="sort-select" id="sortSelect">
-                <option value="market_cap_rank">Rank</option>
-                <option value="current_price">Price</option>
-                <option value="market_cap">Market Cap</option>
-                <option value="price_change_percentage_24h">24h Change</option>
-                <option value="total_volume">Volume</option>
+            <select class="filter-select" id="sortSelect">
+                <option value="market_cap_desc">კაპიტალიზაცია (მაღალი)</option>
+                <option value="market_cap_asc">კაპიტალიზაცია (დაბალი)</option>
+                <option value="price_desc">ფასი (მაღალი)</option>
+                <option value="price_asc">ფასი (დაბალი)</option>
+                <option value="change_desc">ცვლილება (დადებითი)</option>
+                <option value="change_asc">ცვლილება (უარყოფითი)</option>
+                <option value="volume_desc">ობორტი (მაღალი)</option>
+                <option value="rank_asc">რანგი</option>
             </select>
-            <button class="refresh-btn" onclick="fetchCryptoData()">
+            <button class="refresh-button" onclick="loadCryptoData()">
                 <span>🔄</span>
-                Refresh
+                განახლება
             </button>
         </div>
 
-        <div class="table-container">
-            <div id="loadingState" class="loading">
-                <div class="spinner"></div>
-                <p>Loading cryptocurrency data...</p>
+        <div class="table-wrapper">
+            <div id="loadingContainer" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>იტვირთება კრიპტოვალუტების მონაცემები...</p>
             </div>
-            <table class="crypto-table" id="cryptoTable" style="display: none;">
-                <thead>
+            <table class="data-table" id="cryptoTable" style="display: none;">
+                <thead class="table-header">
                     <tr>
-                        <th>Rank</th>
-                        <th>Coin</th>
-                        <th>Price</th>
-                        <th>24h Change</th>
-                        <th>Market Cap</th>
-                        <th>Volume (24h)</th>
+                        <th onclick="sortTable('market_cap_rank')">
+                            რანგი <span class="sort-indicator">↕️</span>
+                        </th>
+                        <th onclick="sortTable('name')">
+                            კრიპტოვალუტა <span class="sort-indicator">↕️</span>
+                        </th>
+                        <th onclick="sortTable('current_price')">
+                            ფასი <span class="sort-indicator">↕️</span>
+                        </th>
+                        <th onclick="sortTable('price_change_percentage_24h')">
+                            24სთ ცვლილება <span class="sort-indicator">↕️</span>
+                        </th>
+                        <th onclick="sortTable('market_cap')">
+                            კაპიტალიზაცია <span class="sort-indicator">↕️</span>
+                        </th>
+                        <th onclick="sortTable('total_volume')">
+                            ობორტი 24სთ <span class="sort-indicator">↕️</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="cryptoTableBody">
                 </tbody>
             </table>
-            <div id="errorState" class="error" style="display: none;">
-                Failed to load cryptocurrency data. Please try again.
+            <div id="errorContainer" class="error-state" style="display: none;">
+                <h3>შეცდომა მონაცემების ჩატვირთვისას</h3>
+                <p>გთხოვთ სცადოთ მოგვიანებით ან განაახლოთ გვერდი</p>
+            </div>
+            <div id="noResults" class="no-results" style="display: none;">
+                <p>ძიების შედეგები ვერ მოიძებნა</p>
             </div>
         </div>
 
-        <div class="last-updated" id="lastUpdated"></div>
+        <div class="last-update" id="lastUpdateTime"></div>
     </div>
 
     <script>
-        const tokens = [
+        const tokensList = [
             'bitcoin', 'rejuve-ai', 'sophiaverse', 'chia', 'stellar', 'kava', 'decentraland', 
             'zksync', 'starknet', 'arbitrum', 'optimism', 'dforce-token', 'band-protocol', 
             'notcoin', 'polkadot', 'solana', 'singularity-finance', 'flare', 'redbelly-network-token', 
@@ -439,148 +734,89 @@
             'status', 'gamium'
         ];
 
-        let cryptoData = [];
-        let filteredData = [];
+        let allCryptoData = [];
+        let filteredCryptoData = [];
+        let currentSortField = 'market_cap_rank';
+        let currentSortDirection = 'asc';
+
+        // Utility Functions
+        function formatCurrency(amount) {
+            if (!amount) return '$0';
+            if (amount >= 1e12) return `$${(amount / 1e12).toFixed(2)}T`;
+            if (amount >= 1e9) return `$${(amount / 1e9).toFixed(2)}B`;
+            if (amount >= 1e6) return `$${(amount / 1e6).toFixed(2)}M`;
+            if (amount >= 1e3) return `$${(amount / 1e3).toFixed(2)}K`;
+            return `$${amount.toFixed(2)}`;
+        }
 
         function formatPrice(price) {
-            if (price < 0.01) {
-                return `$${price.toFixed(6)}`;
-            } else if (price < 1) {
-                return `$${price.toFixed(4)}`;
-            } else {
-                return `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            }
+            if (!price) return '$0';
+            if (price < 0.000001) return `$${price.toFixed(8)}`;
+            if (price < 0.001) return `$${price.toFixed(6)}`;
+            if (price < 1) return `$${price.toFixed(4)}`;
+            return `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
-        function formatMarketCap(marketCap) {
-            if (marketCap >= 1e12) {
-                return `$${(marketCap / 1e12).toFixed(2)}T`;
-            } else if (marketCap >= 1e9) {
-                return `$${(marketCap / 1e9).toFixed(2)}B`;
-            } else if (marketCap >= 1e6) {
-                return `$${(marketCap / 1e6).toFixed(2)}M`;
-            } else if (marketCap >= 1e3) {
-                return `$${(marketCap / 1e3).toFixed(2)}K`;
-            }
-            return `$${marketCap?.toFixed(2) || 'N/A'}`;
+        function formatPercentage(percent) {
+            if (!percent && percent !== 0) return '0%';
+            return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`;
         }
 
-        function getInitials(name) {
+        function getTokenInitials(name) {
             return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
         }
 
-        async function fetchCryptoData() {
-            try {
-                document.getElementById('loadingState').style.display = 'flex';
-                document.getElementById('cryptoTable').style.display = 'none';
-                document.getElementById('errorState').style.display = 'none';
+        function getGeorgianCoinName(id, name) {
+            const georgianNames = {
+                'bitcoin': 'ბიტკოინი',
+                'ethereum': 'ეთერიუმი',
+                'cardano': 'კარდანო',
+                'polkadot': 'პოლკადოტი',
+                'solana': 'სოლანა',
+                'chainlink': 'ჩეინლინკი',
+                'stellar': 'სტელარი',
+                'cosmos': 'კოსმოსი',
+                'decentraland': 'დეცენტრალენდი',
+                'ripple': 'რიპლი'
+            };
+            return georgianNames[id] || name;
+        }
 
-                const tokenIds = tokens.join(',');
-                const response = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${tokenIds}&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h`);
+        // Data Loading Functions
+        async function loadCryptoData() {
+            try {
+                showLoadingState();
+                hideError();
+
+                const tokenIds = tokensList.join(',');
+                const apiUrl = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${tokenIds}&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d`;
                 
+                const response = await fetch(apiUrl);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                cryptoData = await response.json();
-                filteredData = [...cryptoData];
+                const data = await response.json();
+                allCryptoData = data.filter(coin => coin && coin.current_price !== null);
+                filteredCryptoData = [...allCryptoData];
                 
-                updateStats();
-                renderTable();
+                updateMarketOverview();
+                updatePerformanceSections();
+                applySorting();
+                renderCryptoTable();
+                updateLastUpdateTime();
                 
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('cryptoTable').style.display = 'table';
-                document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleString()}`;
+                hideLoadingState();
+                showTable();
                 
             } catch (error) {
-                console.error('Error fetching crypto data:', error);
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('errorState').style.display = 'block';
+                console.error('Error loading crypto data:', error);
+                hideLoadingState();
+                showError();
             }
         }
 
-        function updateStats() {
-            const totalTokens = cryptoData.length;
-            const totalMarketCap = cryptoData.reduce((sum, coin) => sum + (coin.market_cap || 0), 0);
-            const avgChange = cryptoData.reduce((sum, coin) => sum + (coin.price_change_percentage_24h || 0), 0) / totalTokens;
-            const topGainer = cryptoData.reduce((max, coin) => 
-                (coin.price_change_percentage_24h || 0) > (max.price_change_percentage_24h || 0) ? coin : max
-            );
-
-            document.getElementById('totalTokens').textContent = totalTokens;
-            document.getElementById('totalMarketCap').textContent = formatMarketCap(totalMarketCap);
-            document.getElementById('avgChange').textContent = `${avgChange.toFixed(2)}%`;
-            document.getElementById('avgChange').className = `stat-value ${avgChange >= 0 ? 'positive' : 'negative'}`;
-            document.getElementById('topGainer').textContent = topGainer.symbol?.toUpperCase() || 'N/A';
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('cryptoTableBody');
-            tbody.innerHTML = '';
-
-            filteredData.forEach(coin => {
-                const row = document.createElement('tr');
-                const change24h = coin.price_change_percentage_24h || 0;
-                
-                row.innerHTML = `
-                    <td><span class="rank">${coin.market_cap_rank || 'N/A'}</span></td>
-                    <td>
-                        <div class="coin-info">
-                            <div class="coin-logo">${getInitials(coin.name)}</div>
-                            <div>
-                                <div class="coin-name">${coin.name}</div>
-                                <div class="coin-symbol">${coin.symbol?.toUpperCase()}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="price">${formatPrice(coin.current_price)}</td>
-                    <td>
-                        <span class="change ${change24h >= 0 ? 'positive' : 'negative'}">
-                            ${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}%
-                        </span>
-                    </td>
-                    <td class="market-cap">${formatMarketCap(coin.market_cap)}</td>
-                    <td class="volume">${formatMarketCap(coin.total_volume)}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function filterAndSort() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const sortBy = document.getElementById('sortSelect').value;
-
-            filteredData = cryptoData.filter(coin => 
-                coin.name.toLowerCase().includes(searchTerm) || 
-                coin.symbol.toLowerCase().includes(searchTerm)
-            );
-
-            filteredData.sort((a, b) => {
-                let aVal = a[sortBy];
-                let bVal = b[sortBy];
-                
-                if (sortBy === 'price_change_percentage_24h') {
-                    return (bVal || 0) - (aVal || 0);
-                }
-                
-                if (sortBy === 'market_cap_rank') {
-                    return (aVal || Infinity) - (bVal || Infinity);
-                }
-                
-                return (bVal || 0) - (aVal || 0);
-            });
-
-            renderTable();
-        }
-
-        document.getElementById('searchInput').addEventListener('input', filterAndSort);
-        document.getElementById('sortSelect').addEventListener('change', filterAndSort);
-
-        // Auto-refresh every 60 seconds
-        setInterval(fetchCryptoData, 60000);
-
-        // Initial load
-        fetchCryptoData();
-    </script>
-</body>
-</html>
+        function updateMarketOverview() {
+            const totalCoins = allCryptoData.length;
+            const totalMarketCap = allCryptoData.reduce((sum, coin) => sum + (coin.market_cap || 0), 0);
+            const totalVolume = allCryptoData.reduce((sum,
